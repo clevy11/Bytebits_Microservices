@@ -1,0 +1,2 @@
+com/bytebites/gateway/ApiGatewayApplication.class
+com/bytebites/gateway/config/JwtAuthenticationFilter.class
