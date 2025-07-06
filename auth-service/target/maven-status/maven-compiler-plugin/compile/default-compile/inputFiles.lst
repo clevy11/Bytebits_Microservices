@@ -1,0 +1,11 @@
+/Users/mac/IdeaProjects/bytesbitsPlatform/auth-service/src/main/java/com/bytebites/auth/service/JwtService.java
+/Users/mac/IdeaProjects/bytesbitsPlatform/auth-service/src/main/java/com/bytebites/auth/model/User.java
+/Users/mac/IdeaProjects/bytesbitsPlatform/auth-service/src/main/java/com/bytebites/auth/dto/LoginRequest.java
+/Users/mac/IdeaProjects/bytesbitsPlatform/auth-service/src/main/java/com/bytebites/auth/dto/AuthResponse.java
+/Users/mac/IdeaProjects/bytesbitsPlatform/auth-service/src/main/java/com/bytebites/auth/service/AuthService.java
+/Users/mac/IdeaProjects/bytesbitsPlatform/auth-service/src/main/java/com/bytebites/auth/repository/UserRepository.java
+/Users/mac/IdeaProjects/bytesbitsPlatform/auth-service/src/main/java/com/bytebites/auth/controller/AuthController.java
+/Users/mac/IdeaProjects/bytesbitsPlatform/auth-service/src/main/java/com/bytebites/auth/AuthServiceApplication.java
+/Users/mac/IdeaProjects/bytesbitsPlatform/auth-service/src/main/java/com/bytebites/auth/dto/RegisterRequest.java
+/Users/mac/IdeaProjects/bytesbitsPlatform/auth-service/src/main/java/com/bytebites/auth/config/SecurityConfig.java
+/Users/mac/IdeaProjects/bytesbitsPlatform/auth-service/src/main/java/com/bytebites/auth/oauth2/OAuth2AuthenticationSuccessHandler.java
