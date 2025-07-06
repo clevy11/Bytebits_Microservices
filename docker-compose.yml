@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: bytebites-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - bytebites-network
+
+  postgres:
+    image: postgres:15
+    container_name: bytebites-postgres
+    environment:
+      POSTGRES_DB: bytebites
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 728728
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bytebites-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: bytebites-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - bytebites-network
+
+volumes:
+  rabbitmq_data:
+  postgres_data:
+
+networks:
+  bytebites-network:
+    driver: bridge 
