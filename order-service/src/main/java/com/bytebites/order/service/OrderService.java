@@ -7,6 +7,8 @@ import com.bytebites.order.repository.OrderRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import com.bytebites.order.config.RabbitMQConfig;
+import com.bytebites.order.event.OrderPlacedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -78,6 +80,25 @@ public class OrderService {
         return fallbackOrder;
     }
 
+    private void publishOrderPlacedEvent(Order order) {
+        List<OrderPlacedEvent.OrderItemData> itemData = order.getOrderItems().stream()
+                .map(item -> new OrderPlacedEvent.OrderItemData(
+                        item.getMenuItemName(),
+                        item.getQuantity(),
+                        item.getUnitPrice()
+                )).toList();
+
+        OrderPlacedEvent event = new OrderPlacedEvent(
+                order.getId(),
+                order.getCustomerId(),
+                order.getRestaurantId(),
+                itemData,
+                order.getTotalAmount()
+        );
+
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ORDER_PLACED_ROUTING_KEY, event);
+    }
+
     public List<Order> getCustomerOrders(Long customerId) {
         return orderRepository.findByCustomerId(customerId);
     }
@@ -106,13 +127,5 @@ public class OrderService {
         return Optional.empty();
     }
 
-    private void publishOrderPlacedEvent(Order order) {
-        String orderMessage = String.format(
-            "Order placed: ID=%d, Customer=%d, Restaurant=%d, Amount=%s",
-            order.getId(), order.getCustomerId(), order.getRestaurantId(), order.getTotalAmount()
-        );
-        
-        rabbitTemplate.convertAndSend("order.placed", orderMessage);
-        System.out.println("Published order placed event: " + orderMessage);
-    }
+
 } 

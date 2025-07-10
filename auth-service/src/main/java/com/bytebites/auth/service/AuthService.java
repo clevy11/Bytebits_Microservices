@@ -6,6 +6,9 @@ import com.bytebites.auth.dto.RegisterRequest;
 import com.bytebites.auth.model.User;
 import com.bytebites.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,7 +38,14 @@ public class AuthService implements UserDetailsService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName());
-        user.setRole(User.Role.valueOf(request.getRole()));
+
+        // Use the role from the request, defaulting to ROLE_CUSTOMER if not specified
+        try {
+            user.setRole(User.Role.valueOf(request.getRole()));
+        } catch (IllegalArgumentException e) {
+            // If the role is invalid, default to ROLE_CUSTOMER
+            user.setRole(User.Role.ROLE_CUSTOMER);
+        }
 
         User savedUser = userRepository.save(user);
 
@@ -77,6 +87,13 @@ public class AuthService implements UserDetailsService {
         return userRepository.findAll();
     }
 
+    public AuthResponse refreshToken(String token) {
+        String userEmail = jwtService.extractUsername(token);
+        User user = userRepository.findByEmail(userEmail).orElseThrow();
+        String newToken = jwtService.generateToken(user.getEmail(), user.getRole().name(), user.getId());
+        return new AuthResponse(newToken);
+    }
+
     public User registerOAuth2User(String email, String name) {
         return userRepository.findByEmail(email).orElseGet(() -> {
             User user = new User();
@@ -88,4 +105,4 @@ public class AuthService implements UserDetailsService {
             return userRepository.save(user);
         });
     }
-} 
+}

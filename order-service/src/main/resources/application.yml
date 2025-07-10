@@ -52,12 +52,14 @@ resilience4j:
   circuitbreaker:
     instances:
       orderService:
-        sliding-window-size: 10
         failure-rate-threshold: 50
-        wait-duration-in-open-state: 10000
+        wait-duration-in-open-state: 10s
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
         permitted-number-of-calls-in-half-open-state: 3
   retry:
     instances:
       orderService:
         max-attempts: 3
-        wait-duration: 1000 
+        wait-duration: 1s 
