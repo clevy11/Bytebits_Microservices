@@ -4,10 +4,12 @@ server:
 spring:
   application:
     name: restaurant-service
+  config:
+    import: optional:configserver:http://localhost:8888
   datasource:
     url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/bytebites
-    username: ${POSTGRES_USER:bytebites}
-    password: ${POSTGRES_PASSWORD:bytebites123}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:728728}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

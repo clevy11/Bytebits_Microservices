@@ -143,4 +143,4 @@ public class User implements UserDetails {
         ROLE_RESTAURANT_OWNER,
         ROLE_ADMIN
     }
-} 
+}

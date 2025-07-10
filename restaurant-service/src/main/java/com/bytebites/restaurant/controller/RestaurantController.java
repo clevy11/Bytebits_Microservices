@@ -5,7 +5,6 @@ import com.bytebites.restaurant.model.Restaurant;
 import com.bytebites.restaurant.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,37 +38,34 @@ public class RestaurantController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('RESTAURANT_OWNER')")
+    @PreAuthorize("hasRole('ROLE_RESTAURANT_OWNER')")
     @Operation(summary = "Create a new restaurant (Restaurant Owner only)")
     public ResponseEntity<Restaurant> createRestaurant(
             @Valid @RequestBody RestaurantRequest request,
-            HttpServletRequest httpRequest) {
-        
-        Long ownerId = Long.parseLong(httpRequest.getHeader("X-User-ID"));
+            @RequestHeader("X-User-ID") Long ownerId) {
+
         Restaurant restaurant = restaurantService.createRestaurant(request, ownerId);
         return ResponseEntity.ok(restaurant);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('RESTAURANT_OWNER')")
+    @PreAuthorize("hasRole('ROLE_RESTAURANT_OWNER')")
     @Operation(summary = "Update restaurant (Owner only)")
     public ResponseEntity<Restaurant> updateRestaurant(
             @PathVariable Long id,
             @Valid @RequestBody RestaurantRequest request,
-            HttpServletRequest httpRequest) {
-        
-        Long ownerId = Long.parseLong(httpRequest.getHeader("X-User-ID"));
+            @RequestHeader("X-User-ID") Long ownerId) {
+
         Optional<Restaurant> updatedRestaurant = restaurantService.updateRestaurant(id, request, ownerId);
-        
+
         return updatedRestaurant.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/my-restaurants")
-    @PreAuthorize("hasRole('RESTAURANT_OWNER')")
+    @PreAuthorize("hasRole('ROLE_RESTAURANT_OWNER')")
     @Operation(summary = "Get restaurants owned by the current user")
-    public ResponseEntity<List<Restaurant>> getMyRestaurants(HttpServletRequest httpRequest) {
-        Long ownerId = Long.parseLong(httpRequest.getHeader("X-User-ID"));
+    public ResponseEntity<List<Restaurant>> getMyRestaurants(@RequestHeader("X-User-ID") Long ownerId) {
         List<Restaurant> restaurants = restaurantService.getRestaurantsByOwner(ownerId);
         return ResponseEntity.ok(restaurants);
     }

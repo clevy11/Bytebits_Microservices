@@ -29,7 +29,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/auth/register",
             "/auth/login",
             "/actuator/health",
-            "/actuator/info"
+            "/actuator/info",
+            "/swagger-ui.html/**",
+            "/swagger-resources/**"
     );
 
     @Override
@@ -59,6 +61,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     .header("X-User-ID", claims.getSubject())
                     .header("X-User-Email", claims.get("email", String.class))
                     .header("X-User-Roles", claims.get("roles", String.class))
+                    .header("X-User-Role", (String) claims.get("roles"))
                     .build();
 
             return chain.filter(exchange.mutate().request(modifiedRequest).build());

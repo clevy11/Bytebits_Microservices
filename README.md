@@ -343,4 +343,35 @@ All sensitive configuration must be set via environment variables. **Never put s
 
 ## 📄 License
 
-This project is licensed under the MIT License. 
+This project is licensed under the MIT License.
+
+## External Config Repo: BytesBits_ConfigRepo
+
+This project uses a separate GitHub repository for centralized configuration, as required for Spring Cloud Config.
+
+- **Config Repo URL:** https://github.com/clevy11/BytesBits_ConfigRepo.git
+- **Structure:**
+  - Place service-specific config files in folders or with naming conventions (e.g., `auth-service.yml`, `restaurant-service.yml`, etc.)
+  - The config-server is configured to pull from this repo (see `config-server/src/main/resources/application.yml`).
+
+### Example Structure
+
+```
+BytesBits_ConfigRepo/
+  auth-service.yml
+  restaurant-service.yml
+  order-service.yml
+  notification-service.yml
+  api-gateway.yml
+  discovery-server.yml
+```
+
+- Each file contains the `application.yml` content for the corresponding service.
+- You can also use folders for profiles (e.g., `auth-service-dev.yml`, `auth-service-prod.yml`).
+
+### How to Use
+1. Clone the config repo and add your config files.
+2. Push changes to GitHub.
+3. The config-server will automatically serve these configs to all services.
+
+See the `config-server/README.md` for more details on configuration and usage. 
