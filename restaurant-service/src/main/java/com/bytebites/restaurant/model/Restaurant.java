@@ -2,7 +2,6 @@ package com.bytebites.restaurant.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,8 +26,8 @@ public class Restaurant {
 
     private String phone;
 
-    @NotNull
-    private Long ownerId;
+    @NotBlank
+    private String ownerId;
 
     private boolean active = true;
 
@@ -93,11 +92,11 @@ public class Restaurant {
         this.phone = phone;
     }
 
-    public Long getOwnerId() {
+    public String getOwnerId() {
         return ownerId;
     }
 
-    public void setOwnerId(Long ownerId) {
+    public void setOwnerId(String ownerId) {
         this.ownerId = ownerId;
     }
 
