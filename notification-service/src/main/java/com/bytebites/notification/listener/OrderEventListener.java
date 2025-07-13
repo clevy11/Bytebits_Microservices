@@ -27,7 +27,7 @@ public class OrderEventListener {
             // For example, using JavaMailSender or a third-party notification service.
             
         } catch (Exception e) {
-            LOG.error("Error processing order placed event: {}", e.getMessage(), e);
+            LOGGER.error("Error processing order placed event: {}", e.getMessage(), e);
             throw e; // Re-throw to trigger retry or dead-letter queue if configured
         }
     }

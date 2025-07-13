@@ -1,7 +1,6 @@
 package com.bytebites.notification.config;
 
 import com.bytebites.notification.event.OrderPlacedEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -29,12 +28,12 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue queue() {
-        return new Queue(QUEUE_NAME, true);
+        return new Queue(QUEUE_NAME, true, false, false);
     }
 
     @Bean
     public TopicExchange exchange() {
-        return new TopicExchange(EXCHANGE_NAME);
+        return new TopicExchange(EXCHANGE_NAME, true, false);
     }
 
     @Bean
@@ -43,21 +42,21 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public DefaultClassMapper classMapper() {
+    public MessageConverter jsonMessageConverter() {
+        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
         DefaultClassMapper classMapper = new DefaultClassMapper();
-        classMapper.setTrustedPackages("*");
         
+        // Map the type ID to our local OrderPlacedEvent class
         Map<String, Class<?>> idClassMapping = new HashMap<>();
         idClassMapping.put("order.placed", OrderPlacedEvent.class);
-        classMapper.setIdClassMapping(idClassMapping);
         
-        return classMapper;
-    }
-
-    @Bean
-    public MessageConverter jsonMessageConverter(ObjectMapper objectMapper) {
-        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter(objectMapper);
-        converter.setClassMapper(classMapper());
+        // Map the full class name to our local class
+        idClassMapping.put("com.bytebites.order.event.OrderPlacedEvent", OrderPlacedEvent.class);
+        
+        classMapper.setIdClassMapping(idClassMapping);
+        classMapper.setTrustedPackages("*");
+        
+        converter.setClassMapper(classMapper);
         return converter;
     }
 
