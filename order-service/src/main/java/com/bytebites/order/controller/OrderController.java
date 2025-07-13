@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,16 +28,21 @@ public class OrderController {
     @Operation(summary = "Place a new order (Customer only)")
     public ResponseEntity<Order> placeOrder(
             @Valid @RequestBody OrderRequest request,
-            @RequestHeader("X-User-ID") Long customerId) {
+            Authentication authentication) {
+        // Get user ID from JWT token
+        String userId = authentication.getName();
+        Long customerId = Long.parseLong(userId);
 
         Order order = orderService.createOrder(request, customerId);
         return ResponseEntity.ok(order);
     }
 
-    @GetMapping
+    @GetMapping("/my-orders")
     @PreAuthorize("hasRole('ROLE_CUSTOMER')")
     @Operation(summary = "Get customer orders")
-    public ResponseEntity<List<Order>> getMyOrders(@RequestHeader("X-User-ID") Long customerId) {
+    public ResponseEntity<List<Order>> getMyOrders(Authentication authentication) {
+        String userId = authentication.getName();
+        Long customerId = Long.parseLong(userId);
         List<Order> orders = orderService.getCustomerOrders(customerId);
         return ResponseEntity.ok(orders);
     }
@@ -46,8 +52,10 @@ public class OrderController {
     @Operation(summary = "Get specific order (Customer only)")
     public ResponseEntity<Order> getOrderById(
             @PathVariable Long id,
-            @RequestHeader("X-User-ID") Long customerId) {
-
+            Authentication authentication) {
+        
+        String userId = authentication.getName();
+        Long customerId = Long.parseLong(userId);
         Optional<Order> order = orderService.getOrderById(id, customerId);
 
         return order.map(ResponseEntity::ok)

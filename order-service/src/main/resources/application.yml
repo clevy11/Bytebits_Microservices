@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: order-service
+  amqp:
+    deserialization:
+      trust-all: true
   config:
     import: optional:configserver:http://localhost:8888
   datasource:
@@ -25,8 +28,17 @@ spring:
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USER:admin}
-    password: ${RABBITMQ_PASSWORD:admin123}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        default-requeue-rejected: false
+    template:
+      default-receive-queue: order-queue
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    ssl:
+      enabled: false
 
 eureka:
   client:
@@ -47,6 +59,16 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+jwt:
+  secret: your-256-bit-secret-key-must-be-at-least-32-characters-long
+  expiration: 86400000  # 24 hours in milliseconds
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.bytebites.order: DEBUG
+    org.springframework.web: DEBUG
 
 resilience4j:
   circuitbreaker:

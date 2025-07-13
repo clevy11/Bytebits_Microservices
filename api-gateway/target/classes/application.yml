@@ -32,7 +32,7 @@ spring:
           predicates:
             - Path=/api/orders/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
 
 
 

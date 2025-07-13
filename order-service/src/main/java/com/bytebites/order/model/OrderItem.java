@@ -1,5 +1,6 @@
 package com.bytebites.order.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -15,10 +16,7 @@ public class OrderItem {
     private Long id;
 
     @NotNull
-    private Long menuItemId;
-
-    @NotNull
-    private String menuItemName;
+    private String name;
 
     @NotNull
     @Positive
@@ -26,7 +24,7 @@ public class OrderItem {
 
     @NotNull
     @Positive
-    private BigDecimal unitPrice;
+    private BigDecimal price;
 
     @NotNull
     @Positive
@@ -34,6 +32,7 @@ public class OrderItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Order order;
 
     // Getters and Setters
@@ -45,20 +44,12 @@ public class OrderItem {
         this.id = id;
     }
 
-    public Long getMenuItemId() {
-        return menuItemId;
+    public String getName() {
+        return name;
     }
 
-    public void setMenuItemId(Long menuItemId) {
-        this.menuItemId = menuItemId;
-    }
-
-    public String getMenuItemName() {
-        return menuItemName;
-    }
-
-    public void setMenuItemName(String menuItemName) {
-        this.menuItemName = menuItemName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Integer getQuantity() {
@@ -69,12 +60,12 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
+    public BigDecimal getPrice() {
+        return price;
     }
 
-    public void setUnitPrice(BigDecimal unitPrice) {
-        this.unitPrice = unitPrice;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public BigDecimal getTotalPrice() {
