@@ -6,6 +6,8 @@ import com.bytebites.order.model.OrderItem;
 import com.bytebites.order.repository.OrderRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import com.bytebites.order.config.RabbitMQConfig;
 import com.bytebites.order.event.OrderPlacedEvent;
@@ -19,11 +21,16 @@ import java.util.Optional;
 @Service
 public class OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderService.class);
+
+    private final OrderRepository orderRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     @Autowired
-    private RabbitTemplate rabbitTemplate;
+    public OrderService(OrderRepository orderRepository, RabbitTemplate rabbitTemplate) {
+        this.orderRepository = orderRepository;
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
     @CircuitBreaker(name = "orderService", fallbackMethod = "createOrderFallback")
     @Retry(name = "orderService")
@@ -95,10 +102,14 @@ public class OrderService {
             RabbitMQConfig.ORDER_PLACED_ROUTING_KEY, 
             event,
             message -> {
+                // Use a simple type ID that matches the mapping in the notification service
                 message.getMessageProperties().setHeader("__TypeId__", "order.placed");
                 return message;
             }
         );
+        
+        LOGGER.info("Published OrderPlacedEvent for order ID: {}, customer ID: {}", 
+            order.getId(), order.getCustomerId());
     }
 
     public List<Order> getCustomerOrders(Long customerId) {
