@@ -12,7 +12,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
     
     List<Restaurant> findByActiveTrue();
     
-    List<Restaurant> findByOwnerId(Long ownerId);
+    List<Restaurant> findByOwnerId(String ownerId);
     
-    Optional<Restaurant> findByIdAndOwnerId(Long id, Long ownerId);
+    Optional<Restaurant> findByIdAndOwnerId(Long id, String ownerId);
 } 

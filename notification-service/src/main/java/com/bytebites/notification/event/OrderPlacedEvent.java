@@ -5,8 +5,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Represents the event received when a new order is placed.
- * This record must match the structure of the event published by the order-service.
+ * Represents the event published when a new order is successfully placed.
+ * This record is immutable and serializable for messaging.
  */
 public record OrderPlacedEvent(
         Long orderId,

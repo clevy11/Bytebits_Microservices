@@ -28,39 +28,32 @@ public class OrderService {
     @CircuitBreaker(name = "orderService", fallbackMethod = "createOrderFallback")
     @Retry(name = "orderService")
     public Order createOrder(OrderRequest request, Long customerId) {
-        // Calculate total amount
-        BigDecimal totalAmount = request.getItems().stream()
-                .map(item -> BigDecimal.valueOf(item.getQuantity()).multiply(BigDecimal.valueOf(10))) // Mock price
+        Order order = new Order();
+
+        List<OrderItem> orderItems = request.getItems().stream()
+                .map(itemRequest -> {
+                    OrderItem orderItem = new OrderItem();
+                    orderItem.setName(itemRequest.getName());
+                    orderItem.setQuantity(itemRequest.getQuantity());
+                    orderItem.setPrice(itemRequest.getPrice());
+                    orderItem.setTotalPrice(itemRequest.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
+                    orderItem.setOrder(order);
+                    return orderItem;
+                }).toList();
+
+        BigDecimal totalAmount = orderItems.stream()
+                .map(OrderItem::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Create order
-        Order order = new Order();
         order.setCustomerId(customerId);
         order.setRestaurantId(request.getRestaurantId());
         order.setTotalAmount(totalAmount);
         order.setDeliveryAddress(request.getDeliveryAddress());
         order.setSpecialInstructions(request.getSpecialInstructions());
-
-        // Create order items
-        List<OrderItem> orderItems = request.getItems().stream()
-                .map(itemRequest -> {
-                    OrderItem item = new OrderItem();
-                    item.setMenuItemId(itemRequest.getMenuItemId());
-                    item.setMenuItemName("Menu Item " + itemRequest.getMenuItemId()); // Mock name
-                    item.setQuantity(itemRequest.getQuantity());
-                    item.setUnitPrice(BigDecimal.valueOf(10)); // Mock price
-                    item.setTotalPrice(BigDecimal.valueOf(itemRequest.getQuantity()).multiply(BigDecimal.valueOf(10)));
-                    item.setOrder(order);
-                    return item;
-                })
-                .toList();
-
         order.setOrderItems(orderItems);
 
-        // Save order
         Order savedOrder = orderRepository.save(order);
 
-        // Publish order placed event
         publishOrderPlacedEvent(savedOrder);
 
         return savedOrder;
@@ -83,9 +76,9 @@ public class OrderService {
     private void publishOrderPlacedEvent(Order order) {
         List<OrderPlacedEvent.OrderItemData> itemData = order.getOrderItems().stream()
                 .map(item -> new OrderPlacedEvent.OrderItemData(
-                        item.getMenuItemName(),
+                        item.getName(),
                         item.getQuantity(),
-                        item.getUnitPrice()
+                        item.getPrice()
                 )).toList();
 
         OrderPlacedEvent event = new OrderPlacedEvent(
@@ -96,7 +89,16 @@ public class OrderService {
                 order.getTotalAmount()
         );
 
-        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ORDER_PLACED_ROUTING_KEY, event);
+        // Add explicit type information to the message
+        rabbitTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE_NAME, 
+            RabbitMQConfig.ORDER_PLACED_ROUTING_KEY, 
+            event,
+            message -> {
+                message.getMessageProperties().setHeader("__TypeId__", "order.placed");
+                return message;
+            }
+        );
     }
 
     public List<Order> getCustomerOrders(Long customerId) {

@@ -25,28 +25,17 @@ spring:
           predicates:
             - Path=/api/restaurants/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
 
         - id: order-service
           uri: lb://order-service
           predicates:
             - Path=/api/orders/**
           filters:
-            - StripPrefix=1
-
-        - id: admin-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/admin/**
-          filters:
             - StripPrefix=0
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowed-origins: "*"
-            allowed-methods: "*"
-            allowed-headers: "*"
-            allow-credentials: true
+
+
+
 
 eureka:
   client:
@@ -54,7 +43,8 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 
 jwt:
-  secret: ${JWT_SECRET:bytebites-secret-key-for-jwt-signing-and-verification}
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 management:
   endpoints:

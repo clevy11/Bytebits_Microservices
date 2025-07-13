@@ -60,4 +60,19 @@ resilience4j:
     instances:
       restaurantService:
         max-attempts: 3
-        wait-duration: 1000 
+        wait-duration: 1000
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    com.bytebites: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400000  # 24 hours in milliseconds
